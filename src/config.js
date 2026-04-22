@@ -26,6 +26,9 @@ export const config = {
     token: process.env.DISCORD_BOT_TOKEN || "",
     channelId: process.env.DISCORD_CHANNEL_ID || "",
     guildId: process.env.DISCORD_GUILD_ID || "",
+    // If true, relays Quote/Trade/Bar stream messages into DISCORD_CHANNEL_ID.
+    // Default is false so alerts only DM once on trigger.
+    relayMarketData: optional("DISCORD_RELAY_MARKET_DATA", "false") === "true",
   },
   alerts: {
     dbPath: optional("ALERTS_DB_PATH", "data/alerts.json"),

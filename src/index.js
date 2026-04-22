@@ -91,6 +91,7 @@ async function main() {
     alpacaUrl: streamUrl,
     symbols: config.alpaca.symbols,
     alertsDbPath: config.alerts.dbPath,
+    discordRelayMarketData: config.discord.relayMarketData,
   });
 
   const discordClient = createDiscordClient({ logger });
@@ -125,11 +126,13 @@ async function main() {
     logger.info("Discord channel relay disabled (DISCORD_CHANNEL_ID not set)");
   }
 
+  const shouldRelayMarketData = Boolean(relayChannel && config.discord.relayMarketData);
+
   const batcher = createBatcher({
     flushIntervalMs: config.batching.flushIntervalMs,
     logger,
     onFlush: async (lines) => {
-      if (!relayChannel) return;
+      if (!shouldRelayMarketData) return;
       const chunks = chunkDiscordMessages(lines, config.batching.maxDiscordMessageChars);
       for (const content of chunks) {
         try {
@@ -140,7 +143,7 @@ async function main() {
       }
     },
   });
-  if (relayChannel) batcher.start();
+  if (shouldRelayMarketData) batcher.start();
 
   const store = new JsonFileAlertStore({ filePath: config.alerts.dbPath, logger });
   await store.init();
@@ -235,17 +238,17 @@ async function main() {
   }
 
   alpaca.on("trade", async (t) => {
-    if (relayChannel) batcher.pushTrade(t);
+    if (shouldRelayMarketData) batcher.pushTrade(t);
     const upd = engine.updateFromTrade(t);
     if (upd?.symbol) await evaluateAndTrigger(upd.symbol);
   });
   alpaca.on("quote", async (q) => {
-    if (relayChannel) batcher.pushQuote(q);
+    if (shouldRelayMarketData) batcher.pushQuote(q);
     const upd = engine.updateFromQuote(q);
     if (upd?.symbol) await evaluateAndTrigger(upd.symbol);
   });
   alpaca.on("bar", (b) => {
-    if (relayChannel) batcher.pushBar(b);
+    if (shouldRelayMarketData) batcher.pushBar(b);
   });
 
   alpaca.connect();
