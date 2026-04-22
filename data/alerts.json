@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-22T17:18:13.091Z",
+  "alerts": [
+    {
+      "id": "40f3ecdf",
+      "userId": "1036362905760837733",
+      "symbol": "APPL",
+      "op": ">=",
+      "targetPrice": 273,
+      "status": "cancelled",
+      "createdAt": "2026-04-22T17:12:31.721Z",
+      "triggeredAt": null,
+      "triggerPrice": null,
+      "cancelledAt": "2026-04-22T17:17:25.134Z"
+    },
+    {
+      "id": "b3452f18",
+      "userId": "1036362905760837733",
+      "symbol": "SPY",
+      "op": ">=",
+      "targetPrice": 710.1,
+      "status": "triggered",
+      "createdAt": "2026-04-22T17:16:35.958Z",
+      "triggeredAt": "2026-04-22T17:16:37.203374074Z",
+      "triggerPrice": 710.155,
+      "cancelledAt": null
+    },
+    {
+      "id": "56e15d9f",
+      "userId": "1036362905760837733",
+      "symbol": "SPY",
+      "op": ">=",
+      "targetPrice": 709.8,
+      "status": "triggered",
+      "createdAt": "2026-04-22T17:18:12.209Z",
+      "triggeredAt": "2026-04-22T17:18:12.969631337Z",
+      "triggerPrice": 709.84,
+      "cancelledAt": null
+    }
+  ]
+}
