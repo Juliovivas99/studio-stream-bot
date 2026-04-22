@@ -72,6 +72,15 @@ By default, the bot listens **only in DMs**. To also accept `help`, `list`, `can
 
 Operational note: if the bot cannot DM a user (privacy settings), it logs a clear error. If `DISCORD_CHANNEL_ID` is set, it will also post a short notice in that channel.
 
+## Slash commands (type `/` to see the menu)
+To enable slash commands, invite the bot with the `applications.commands` scope (recommended) and optionally set:
+- `DISCORD_GUILD_ID` for **instant** registration in one server (dev)
+
+Commands:
+- `/alert symbol:AAPL op:>= price:250`
+- `/alerts list`
+- `/alerts cancel id:abcdef12`
+
 ## How it works (short)
 - On startup, the bot logs into Discord (required for DM alerts). If `DISCORD_CHANNEL_ID` is set, it also fetches that channel for optional relay messages.
 - It opens a WebSocket to `wss://stream.data.alpaca.markets/v2/<feed>`, authenticates with `{"action":"auth","key":"...","secret":"..."}`.

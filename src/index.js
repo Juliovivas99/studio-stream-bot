@@ -6,6 +6,8 @@ import { formatTrade, formatQuote, formatBar } from "./alpaca/formatters.js";
 import { JsonFileAlertStore } from "./alerts/store.js";
 import { AlertEngine } from "./alerts/engine.js";
 import { registerDmAlertHandlers } from "./discord/handlers/dmAlerts.js";
+import { registerSlashCommandHandlers } from "./discord/handlers/slashCommands.js";
+import { registerSlashCommands } from "./discord/commands/register.js";
 
 const logger = createLogger({ level: process.env.LOG_LEVEL || "info", name: "bot" });
 
@@ -97,6 +99,20 @@ async function main() {
   logger.info("Logging into Discord");
   await discordClient.login(discordCfg.token);
 
+  // Register slash commands (guild-scoped if DISCORD_GUILD_ID is set for instant availability).
+  // Requires applications.commands scope on the invite URL.
+  const appId = discordClient.application?.id || discordClient.user?.id;
+  if (appId) {
+    await registerSlashCommands({
+      token: discordCfg.token,
+      appId,
+      guildId: config.discord.guildId || "",
+      logger,
+    });
+  } else {
+    logger.warn("Could not determine Discord application id; skipping slash command registration");
+  }
+
   // Optional channel relay feature.
   let relayChannel = null;
   if (discordCfg.channelId) {
@@ -146,6 +162,18 @@ async function main() {
     relayChannel,
   });
 
+  registerSlashCommandHandlers({
+    client: discordClient,
+    logger,
+    store,
+    engine,
+    defaultOp: config.alerts.defaultOp,
+    onAlertStoreChanged: async () => {
+      const symbols = recomputeWatchlist();
+      logger.info("Updated watchlist from slash command change", { symbols });
+    },
+  });
+
   const alpaca = new AlpacaMarketDataSocket({
     url: streamUrl,
     key: config.alpaca.key,
@@ -161,6 +189,8 @@ async function main() {
   });
   alpaca.on("subscribed", () => logger.info("Alpaca subscribed"));
   alpaca.on("alpaca_error", (e) => logger.error("Alpaca stream error", e));
+  // Important: AlpacaMarketDataSocket emits an `error` event; without a listener, Node will crash.
+  alpaca.on("error", (err) => logger.error("Alpaca socket error event", { err: String(err) }));
 
   function recomputeWatchlist() {
     const active = store.getAllActiveAlerts();

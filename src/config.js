@@ -25,6 +25,7 @@ export const config = {
     // `src/index.js` will validate these at runtime before using Discord.
     token: process.env.DISCORD_BOT_TOKEN || "",
     channelId: process.env.DISCORD_CHANNEL_ID || "",
+    guildId: process.env.DISCORD_GUILD_ID || "",
   },
   alerts: {
     dbPath: optional("ALERTS_DB_PATH", "data/alerts.json"),
